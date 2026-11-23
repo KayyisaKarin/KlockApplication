@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,9 +11,7 @@ Future<void> main() async {
   await initializeDateFormatting('id');
   Object? startupError;
   try {
-    // TODO-F01: Tambahkan import firebase_core dan inisialisasi Firebase.
-    // Konfigurasi native diunduh dari Console; tanpa Firebase CLI.
-    await Future<void>.error(UnimplementedError('TODO-F01: inisialisasi Firebase.'));
+    await Firebase.initializeApp();
   } catch (error) {
     startupError = error;
   }
