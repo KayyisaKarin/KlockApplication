@@ -26,6 +26,6 @@ class ProfileRepository {
 
   Future<void> save(Uint8List bytes) async {
     if (bytes.isEmpty || bytes.length > 102400) throw StateError('Foto maksimal 100 KB.');
-    await document.set({'bytes' : Blob(bytes), 'updateAt' :FieldValue.serverTimestamp()});
+    await document.set({'bytes' : Blob(bytes), 'updatedAt' :FieldValue.serverTimestamp()});
   }
 }
