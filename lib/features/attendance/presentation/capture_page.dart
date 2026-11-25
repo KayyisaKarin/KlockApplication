@@ -28,7 +28,9 @@ class _CapturePageState extends ConsumerState<CapturePage> {
       final bytes = await CameraService.capture(context);
       if (bytes == null) return;
       if (mounted) setState(() => photo = bytes);
-    } catch (_) {
+    } catch (e, stackTrace) {
+      debugPrint('CAPTURE ERROR: $e');
+      debugPrint('$stackTrace');
       if (mounted) {
         setState(
           () =>
@@ -51,7 +53,9 @@ class _CapturePageState extends ConsumerState<CapturePage> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Sudah masuk! Absensimu tersimpan.')));
-    } catch (_) {
+    } catch (e, stackTrace) {
+      debugPrint('REAL SUBMIT ERROR: $e');
+      debugPrint('$stackTrace');
       if (mounted) {
         setState(
           () => error = 'Gagal menyimpan. Periksa koneksi; pastikan kamu belum absen hari ini.',

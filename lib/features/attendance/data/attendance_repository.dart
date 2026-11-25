@@ -36,7 +36,7 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
 
     final batch = db.batch();
     final record = records.doc();
-    batch.set(record, {'CreatedAt': FieldValue.serverTimestamp()});
+    batch.set(record, {'createdAt': FieldValue.serverTimestamp()});
     batch.set(record.collection('evidence').doc('photo'), {
       'bytes': Blob(photo),
     });
