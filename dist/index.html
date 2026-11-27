@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Punchd'in App — Retro Punch-Card Attendance</title>
+    <meta name="description" content="Punchd'in App student attendance with front camera photo check-in, WIB check-in clock, and attendance streak history." />
+    <meta property="og:title" content="Punchd'in App — Retro Punch-Card Attendance" />
+    <meta property="og:description" content="Punchd'in App student attendance with front camera photo check-in, WIB check-in clock, and attendance streak history." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/assets/brand/punchdin_logo.svg" />
+    <link rel="apple-touch-icon" href="/assets/brand/punchdin_logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #F6F5F0;
+        --surface: #FFFFFF;
+        --ticket: #FFF3C4;
+        --ink: #121212;
+        --muted: #52525B;
+        --blue: #4D6FB7;
+        --blue-hover: #3B5898;
+        --tint: #DCE4F5;
+        --border: #D0D9EC;
+        --saffron: #F4C430;
+        --coral: #FF6B4A;
+        --teal: #2EC4B6;
+        --crimson: #E63946;
+        --periwinkle: #A8B9DF;
+      }
+      html.dark {
+        --bg: #12151F;
+        --surface: #1B2030;
+        --ticket: #232738;
+        --ink: #F6F5F0;
+        --muted: #A8B9DF;
+        --blue: #2F4880;
+        --border: rgba(255, 255, 255, 0.1);
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        background: #E8ECF4;
+        color: var(--ink);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+      }
+      .phone {
+        width: 375px;
+        height: 812px;
+        flex-shrink: 0;
+        border-radius: 44px;
+        border: 10px solid #1E2433;
+        background: var(--bg);
+        box-shadow: 0 24px 60px rgba(18, 18, 18, 0.24);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transform-origin: center;
+      }
+      @media (max-height: 860px) {
+        .phone { transform: scale(0.86); }
+      }
+      @media (max-width: 639px) {
+        body { padding: 0; background: var(--bg); }
+        .phone { width: 100vw; height: 100vh; border: 0; border-radius: 0; transform: none; box-shadow: none; }
+      }
+      .notch {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 108px;
+        height: 24px;
+        background: #12151F;
+        border-radius: 999px;
+        z-index: 30;
+      }
+      .viewport {
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: none;
+        padding: 46px 20px 28px;
+        background-image: radial-gradient(rgba(18,18,18,0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .viewport::-webkit-scrollbar { display: none; }
+      .serif { font-family: 'Fraunces', Georgia, serif; }
+      .mono { font-family: 'JetBrains Mono', monospace; }
+      .theme-row { display: flex; justify-content: flex-end; margin-bottom: 18px; }
+      .theme-btn {
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--ink);
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(77, 111, 183, 0.08);
+      }
+      .ticket-wrap { position: relative; max-width: 330px; margin: 0 auto; }
+      .ticket-back {
+        position: absolute;
+        inset: 0;
+        background: #4D6FB7;
+        border-radius: 22px;
+        transform: rotate(-3deg);
+        box-shadow: 0 6px 18px rgba(77, 111, 183, 0.22);
+      }
+      .ticket-card {
+        position: relative;
+        background: var(--ticket);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 24px 20px 20px;
+        box-shadow: 0 6px 20px rgba(77, 111, 183, 0.14);
+      }
+      .logo-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 18px;
+        text-align: center;
+      }
+      .logo-badge img {
+        width: 56px;
+        height: 56px;
+        border-radius: 999px;
+        box-shadow: 0 4px 12px rgba(77, 111, 183, 0.16);
+      }
+      .label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+      .input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--ink);
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+      .btn-primary {
+        width: 100%;
+        height: 44px;
+        border: 0;
+        border-radius: 10px;
+        background: #4D6FB7;
+        color: #FFFFFF;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-primary:hover { background: #3B5898; }
+      .error-box {
+        display: none;
+        margin-bottom: 12px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--crimson);
+        background: rgba(230, 57, 70, 0.12);
+        color: var(--crimson);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .home-indicator {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(18, 18, 18, 0.25);
+      }
+      html.dark .home-indicator { background: rgba(255, 255, 255, 0.28); }
+    </style>
+  </head>
+  <body>
+    <main class="stage">
+      <div class="phone">
+        <div class="notch" aria-hidden="true"></div>
+        <div class="viewport">
+          <div class="theme-row">
+            <button id="themeBtn" type="button" class="theme-btn">
+              <span id="themeIcon">☾</span>
+              <span id="themeLabel">Light</span>
+            </button>
+          </div>
+          <div class="ticket-wrap">
+            <div class="ticket-back" aria-hidden="true"></div>
+            <section class="ticket-card">
+              <div class="logo-badge">
+                <img src="/assets/brand/punchdin_logo.svg" alt="Punchd'in App logo" />
+                <span class="mono" style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);">LOGIN</span>
+                <h1 class="serif" style="font-size:32px;line-height:1;">Punchd'in</h1>
+                <p style="font-size:12px;color:var(--muted);">Punch in your absence in a streak!</p>
+              </div>
+              <form id="loginForm">
+                <label class="label" for="email">Email:</label>
+                <input id="email" class="input" type="email" placeholder="student@school.edu" required />
+                <label class="label" for="password">Password:</label>
+                <input id="password" class="input" type="password" placeholder="••••••••" required />
+                <div id="errorBox" class="error-box" role="alert"></div>
+                <button id="submitBtn" class="btn-primary" type="submit">Log in</button>
+              </form>
+              <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--muted);">
+                <p>Don't have an account?</p>
+                <p style="font-size:10px;opacity:0.85;margin-top:2px;">Ask your school admin for access.</p>
+              </div>
+            </section>
+          </div>
+          <p style="margin-top:18px;text-align:center;font-size:10px;color:var(--muted);">
+            Punchd'in App helps you track daily streaks with photo capture.
+          </p>
+        </div>
+        <div class="home-indicator" aria-hidden="true"></div>
+      </div>
+    </main>
+    <script>
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('themeBtn');
+      const themeIcon = document.getElementById('themeIcon');
+      const themeLabel = document.getElementById('themeLabel');
+      themeBtn.addEventListener('click', () => {
+        const dark = root.classList.toggle('dark');
+        themeIcon.textContent = dark ? '☀' : '☾';
+        themeLabel.textContent = dark ? 'Dark' : 'Light';
+      });
+      const form = document.getElementById('loginForm');
+      const errorBox = document.getElementById('errorBox');
+      const submitBtn = document.getElementById('submitBtn');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorBox.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Connecting…';
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: document.getElementById('email').value.trim(),
+              password: document.getElementById('password').value,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Login failed.');
+          localStorage.setItem('punchdin_auth_token', data.token);
+          submitBtn.textContent = 'Signed in!';
+        } catch (err) {
+          errorBox.textContent = err.message || 'Unable to sign in right now.';
+          errorBox.style.display = 'block';
+          submitBtn.textContent = 'Log in';
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

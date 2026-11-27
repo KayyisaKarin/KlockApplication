@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme.dart';
 
 class CaptureIntro extends StatelessWidget {
   const CaptureIntro({super.key});
+
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text('Foto dulu, yuk.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600)),
-      const SizedBox(height: 10),
-      Text(
-        'Pastikan wajahmu terlihat jelas. Cek fotonya sebelum dikirim. '
-        'Jam absen dihitung saat server menerima kirimanmu, bukan saat foto diambil.',
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.6),
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Text(
+      'Attendance timestamp is stamped by the server upon submission (07:00 WIB cutoff).',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 11,
+        height: 1.45,
+        color: dark ? AppColors.excused : AppColors.mutedInk,
       ),
-      const SizedBox(height: 24),
-    ],
-  );
+    );
+  }
 }

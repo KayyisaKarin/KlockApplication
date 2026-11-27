@@ -1,16 +1,15 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../../core/theme.dart';
 import '../data/camera_service.dart';
-
 import 'providers.dart';
-import 'widgets/photo_preview.dart';
 import 'widgets/capture_intro.dart';
+import 'widgets/photo_preview.dart';
 
 class CapturePage extends ConsumerStatefulWidget {
   const CapturePage({super.key});
+
   @override
   ConsumerState<CapturePage> createState() => _CapturePageState();
 }
@@ -19,6 +18,7 @@ class _CapturePageState extends ConsumerState<CapturePage> {
   Uint8List? photo;
   bool busy = false;
   String? error;
+
   Future<void> capture() async {
     setState(() {
       busy = true;
@@ -28,13 +28,10 @@ class _CapturePageState extends ConsumerState<CapturePage> {
       final bytes = await CameraService.capture(context);
       if (bytes == null) return;
       if (mounted) setState(() => photo = bytes);
-    } catch (e, stackTrace) {
-      debugPrint('CAPTURE ERROR: $e');
-      debugPrint('$stackTrace');
+    } catch (_) {
       if (mounted) {
         setState(
-          () =>
-              error = 'Kamera gagal atau foto melebihi 100 KB. Periksa izin kamera dan coba lagi.',
+          () => error = 'Camera failed or photo exceeded 100 KB. Check permissions and try again.',
         );
       }
     } finally {
@@ -51,14 +48,13 @@ class _CapturePageState extends ConsumerState<CapturePage> {
       await ref.read(repositoryProvider).submit(photo!);
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Sudah masuk! Absensimu tersimpan.')));
-    } catch (e, stackTrace) {
-      debugPrint('REAL SUBMIT ERROR: $e');
-      debugPrint('$stackTrace');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Punched in! Your streak has been updated.')),
+      );
+    } catch (_) {
       if (mounted) {
         setState(
-          () => error = 'Gagal menyimpan. Periksa koneksi; pastikan kamu belum absen hari ini.',
+          () => error = 'Failed to submit. Make sure you have not punched in today.',
         );
       }
     } finally {
@@ -67,35 +63,79 @@ class _CapturePageState extends ConsumerState<CapturePage> {
   }
 
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: !busy,
-    child: Scaffold(
-      appBar: AppBar(title: const Text('Catat kehadiran')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const CaptureIntro(),
-            PhotoPreview(photo: photo),
-            const SizedBox(height: 20),
-            OutlinedButton.icon(
-              onPressed: busy ? null : capture,
-              icon: const Icon(Icons.camera_alt_outlined),
-              label: Text(photo == null ? 'Buka kamera' : 'Ambil ulang'),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: busy || photo == null ? null : submit,
-              child: Text(busy ? 'Memproses…' : 'Kirim kehadiran'),
-            ),
-            if (error != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 18),
-                child: Text(error!, style: const TextStyle(color: Colors.orangeAccent)),
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return PopScope(
+      canPop: !busy,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: dark ? AppColors.brandBlueDark : AppColors.brandBlue,
+          foregroundColor: Colors.white,
+          title: const Text(
+            'Go back',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+        ),
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            children: [
+              PhotoPreview(photo: photo),
+              const SizedBox(height: 12),
+              const CaptureIntro(),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: busy ? null : capture,
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: dark ? AppColors.darkSurface : Colors.white,
+                  foregroundColor: dark ? AppColors.brandBlueTint : AppColors.brandBlue,
+                  side: BorderSide(
+                    color: dark
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : AppColors.brandBlue.withValues(alpha: 0.65),
+                  ),
+                ),
+                icon: const Icon(Icons.camera_alt_outlined, size: 18),
+                label: Text(
+                  photo == null ? 'Take a photo' : 'Retake photo',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
-          ],
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: busy || photo == null ? null : submit,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.saffron,
+                  foregroundColor: AppColors.ink,
+                ),
+                child: Text(
+                  busy ? 'Submitting…' : 'Submit',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              if (error != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.absent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.absent.withValues(alpha: 0.35)),
+                  ),
+                  child: Text(
+                    error!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.absent,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

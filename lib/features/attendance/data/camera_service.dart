@@ -1,7 +1,5 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-
 import '../../camera/front_camera_page.dart';
 
 abstract final class CameraService {
@@ -9,17 +7,20 @@ abstract final class CameraService {
     final consent = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Pakai kamera depan, ya?'),
+        title: const Text('Use front camera?'),
         content: const Text(
-          'Klock perlu akses kamera untuk foto wajahmu. Foto baru dikirim '
-          'setelah kamu menekan tombol simpan. Tidak ada akses ke galeri atau mikrofon.',
+          "Punchd'in needs camera access to snap your check-in selfie. Photos are only sent "
+          'when you tap Submit—no gallery or microphone access.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Nanti dulu'),
+            child: const Text('Not now'),
           ),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Lanjut')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Continue'),
+          ),
         ],
       ),
     );

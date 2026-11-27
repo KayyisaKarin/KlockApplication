@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "502706171805",
+    "project_id": "attendanceapp-a5a48",
+    "storage_bucket": "attendanceapp-a5a48.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502706171805:android:48feca48e5c37ca82f8974",
+        "android_client_info": {
+          "package_name": "id.sch.klock.klock_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwDcGY-RZV9UinwY0csgAEvHL327D3wF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

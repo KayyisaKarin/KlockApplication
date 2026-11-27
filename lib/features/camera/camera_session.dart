@@ -1,18 +1,21 @@
 import 'dart:typed_data';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-
-import 'photo_codec.dart';
 import 'front_lens.dart';
+import 'photo_codec.dart';
 
 class CameraSession extends ChangeNotifier with WidgetsBindingObserver {
   CameraController? controller;
   String? error;
-  bool busy = false, _opening = false, _closed = false, _active = true;
+  bool busy = false;
+  bool _opening = false;
+  bool _closed = false;
+  bool _active = true;
+
   CameraSession() {
     WidgetsBinding.instance.addObserver(this);
   }
+
   Future<void> open() async {
     if (_opening || _closed || !_active) return;
     if (controller != null) {
@@ -32,7 +35,7 @@ class CameraSession extends ChangeNotifier with WidgetsBindingObserver {
         ResolutionPreset.medium,
         enableAudio: false,
       );
-      await next.initialize(); // OS asks for camera permission before preview is shown.
+      await next.initialize();
       if (_closed || !_active) {
         await next.dispose();
         return;
@@ -41,11 +44,11 @@ class CameraSession extends ChangeNotifier with WidgetsBindingObserver {
     } on CameraException catch (e) {
       await next?.dispose();
       error = e.code.contains('Access')
-          ? 'Kamera belum diizinkan. Buka Pengaturan HP → Klock App → izinkan Kamera, lalu coba lagi.'
-          : 'Kamera belum bisa dibuka. Coba lagi, ya.';
+          ? "Camera permission denied. Allow Camera access in Settings for Punchd'in, then retry."
+          : 'Could not open front camera. Please try again.';
     } catch (e) {
       await next?.dispose();
-      error = e is StateError ? e.message.toString() : 'Kamera bermasalah. Coba lagi.';
+      error = e is StateError ? e.message.toString() : 'Camera error. Please try again.';
     } finally {
       _opening = false;
       if (!_closed) {
@@ -64,7 +67,7 @@ class CameraSession extends ChangeNotifier with WidgetsBindingObserver {
       final file = await camera.takePicture();
       return await PhotoCodec.compress(await file.readAsBytes());
     } catch (_) {
-      error = 'Fotonya belum tersimpan. Coba ambil lagi, ya.';
+      error = 'Could not save photo. Please try again.';
       return null;
     } finally {
       busy = false;

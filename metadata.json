@@ -1,0 +1,6 @@
+{
+  "name": "Punchd'in App",
+  "description": "Student attendance app with front camera photo check-in, WIB check-in clock, and attendance streak history.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

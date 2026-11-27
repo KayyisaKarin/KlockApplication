@@ -7,6 +7,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
 
 class AuthRepository {
   AuthRepository(this.auth);
+
   final FirebaseAuth auth;
 
   Future<void> signIn(String email, String password) async {
@@ -19,7 +20,11 @@ class AuthRepository {
 
   String get studentName {
     final user = auth.currentUser;
-    return user?.displayName ?? user?.email?.split('@').first ?? 'Siswi';
+    return user?.displayName ?? user?.email?.split('@').first ?? 'Student';
+  }
+
+  String get studentEmail {
+    return auth.currentUser?.email ?? '';
   }
 
   Future<void> signOut() async {
